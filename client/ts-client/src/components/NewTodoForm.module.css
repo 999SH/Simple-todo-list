@@ -1,0 +1,54 @@
+/* src/components/NewTodoForm.module.css */
+.container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.form {
+    display: inline-block;
+}
+
+.input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    margin-right: 10px;
+}
+
+.button {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+    margin-left: 10px;
+}
+
+.button:hover {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #333;
+}
+
+.plusButton {
+    font-size: 24px;
+    padding: 0 8px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
+.plusButton:hover {
+    background-color: #333;
+    color: #fff;
+    border: 2px solid #333;
+}

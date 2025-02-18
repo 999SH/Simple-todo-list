@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: twiceme_admin
+      POSTGRES_PASSWORD: secure
+      POSTGRES_DB: twiceme
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+
+  server:
+    build: ./server
+    environment:
+      DB_USER: twiceme_admin
+      DB_PASSWORD: secure 
+      DB_DATABASE: twiceme 
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+
+  client:
+    build: ./client/ts-client
+    environment:
+      DB_USER: twiceme_admin
+      DB_PASSWORD: secure 
+      DB_DATABASE: twiceme 
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 3000
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+
+volumes:
+  pgdata:
+
