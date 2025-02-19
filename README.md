@@ -1,5 +1,6 @@
 File structure is as following:
 
+```
 /Simple-todo-list
   ├── client/               # React frontend application
   │     ├── public/
@@ -15,7 +16,7 @@ File structure is as following:
   │     └── README.md       # DB-specific instructions
   ├── docker-compose.yml    # Orchestrates server, client, and database containers
   └── README.md             # (This file) overall project documentation
-
+```
 
 Entire app should work by running:
 
