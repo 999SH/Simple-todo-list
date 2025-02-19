@@ -1,7 +1,25 @@
 File structure is as following:
 
-./database contains the scripts for the database, along with instructions
+```
+/Simple-todo-list
+  ├── client/               # React frontend application
+  │     ├── public/
+  │     ├── src/
+  │     ├── package.json
+  │     └── README.md       # Client-specific instructions
+  ├── server/               # Node.js/Express backend API
+  │     ├── src/
+  │     ├── package.json
+  │     └── README.md       # Server-specific instructions
+  ├── db/                   # Database configuration and scripts (PostgreSQL)
+  │     ├── init.sql        # Initialization scripts for the database
+  │     └── README.md       # DB-specific instructions
+  ├── docker-compose.yml    # Orchestrates server, client, and database containers
+  └── README.md             # (This file) overall project documentation
+```
 
-./server contains all the files and instructions for the back-end
+Entire app should work by running:
 
-./client contains all the files and instructions for the front-end
+docker-compose up --build
+
+and connecting to localhost:3000
