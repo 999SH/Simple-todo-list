@@ -18,7 +18,8 @@ This documentation outlines the repository structure and provides guidance for s
   │     ├── package.json    # Server dependencies and scripts
   │     └── README.md       # Server-specific instructions and configuration details
   ├── db/                   # Database configuration and scripts (PostgreSQL)
-  │     ├── init.sql        # SQL initialization script to set up the database schema and seed data\n  │     └── README.md       # Database-specific instructions and setup details
+  │     ├── init.sql        # SQL initialization script to set up the database schema and seed data\n
+  │     └── README.md       # Database-specific instructions and setup details
   ├── docker-compose.yml    # Orchestrates server, client, and database containers
   └── README.md             # (This file) Overall project documentation, including setup instructions and architecture overview
 
