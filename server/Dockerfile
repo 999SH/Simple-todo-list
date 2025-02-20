@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port that your server listens on
+# Expose the port that the server listens on
 EXPOSE 3001
 
 # Start the server
