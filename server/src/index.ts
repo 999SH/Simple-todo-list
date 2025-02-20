@@ -23,7 +23,7 @@ const pool = new Pool({
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
 });
 
-// Add a basic test route
+// Basic test route
 app.get('/ping', (_req, res) => {
     res.send('pong');
 });
@@ -57,7 +57,8 @@ app.post('/todos', async (req: Request, res: Response) => {
 // Endpoint to update an entry
 app.put('/todos/:id', async (req: Request, res: Response) => {
     try {
-        const { complete, id } = req.body;
+        const { complete } = req.body;
+        const { id } = req.params;
         const result = await pool.query(
             'UPDATE todos SET complete = $1 WHERE id = $2 RETURNING *',
             [complete, id]

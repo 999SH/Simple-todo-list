@@ -29,10 +29,12 @@ export async function addTodo(content: string): Promise<Todo> {
 }
 
 export async function updateTodo(todo: Partial<Todo> & { id: number }): Promise<Todo> {
-    const response = await fetch(`${API_BASE_URL}/todos/${todo.id}`, {
+    const { id, ...updateData } = todo;
+
+    const response = await fetch(`${API_BASE_URL}/todos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(todo),
+        body: JSON.stringify(updateData),
     });
     if (!response.ok) {
         throw new Error(`Failed to update todo: ${response.statusText}`);
