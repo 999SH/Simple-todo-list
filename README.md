@@ -9,7 +9,7 @@ This documentation outlines the repository structure and provides guidance for s
 
 ```
 /Simple-todo-list
-  ├── client/               # React frontend application
+  ├── client/ts-client/     # React frontend application
   │     ├── src/            # Source code for the React app
   │     ├── package.json    # Client dependencies and scripts
   │     └── README.md       # Client-specific instructions and setup details
