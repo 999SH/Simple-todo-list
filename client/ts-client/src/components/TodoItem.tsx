@@ -2,16 +2,42 @@
 import React from 'react';
 import styles from './TodoItem.module.css';
 import { Todo } from '../api/todos';
+import {useDraggable, useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
-interface TodoItemProps {
+export interface TodoItemProps {
     todo: Todo;
     onToggleComplete: (id: number, currentComplete: boolean) => void;
     onDelete: (id: number) => void;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleComplete, onDelete }) => {
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef: setDraggableNodeRef,
+        transform,
+    } = useDraggable({ id: todo.id.toString() });
+
+    const { setNodeRef: setDroppableNodeRef } = useDroppable({ id: todo.id.toString() });
+
+    const setNodeRef = (node: HTMLElement | null) => {
+        setDraggableNodeRef(node);
+        setDroppableNodeRef(node);
+    }
+
+    const style = {
+        transform: transform ? CSS.Translate.toString(transform) : undefined,
+        transition: 'transform 100ms ease',
+    }
+
     return (
         <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
             className={styles.container}
             onClick={() => onToggleComplete(todo.id, todo.complete)}
         >

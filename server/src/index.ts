@@ -54,8 +54,31 @@ app.post('/todos', async (req: Request, res: Response) => {
     }
 });
 
+//Endpoint to update all entries at once (ordering)
+app.put('/todos', async (req: Request, res: Response)=> {
+    try {
+        const todoList = req.body;
+
+        /* Do for each */
+        const updatePromises = todoList.map((todo: { position: number; id: number; }) =>
+            pool.query(
+                'UPDATE todos SET position = $1 WHERE id = $2 RETURNING *',
+                [todo.position , todo.id]
+            )
+        );
+
+        const result = await Promise.all(updatePromises);
+        const updatedTodos = result.map(r => r.rows[0]);
+
+        res.json({updatedTodos});
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Endpoint to update an entry
-app.put('/todos/:id', async (req: Request, res: Response) => {
+app.patch('/todos/:id', async (req: Request, res: Response) => {
     try {
         const { complete } = req.body;
         const { id } = req.params;
