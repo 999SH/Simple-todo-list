@@ -2,140 +2,54 @@ import React, {useState, useEffect, useRef} from 'react';
 import TodoList from './components/TodoList';
 import NewTodoForm from './components/NewTodoForm';
 import Background from './components/Background';
-import {Todo, fetchTodos, addTodo, updateTodo, deleteTodo, updateAllTodos} from './api/todos';
 import styles from './App.module.css';
+import useTodos, { Todo } from './hooks/useTodos'
+
 import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors
+    closestCenter,
+    DndContext, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors,
 } from "@dnd-kit/core";
 
+import {restrictToVerticalAxis, restrictToWindowEdges} from "@dnd-kit/modifiers";
+
 const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-  const [updated, setUpdated] = useState<boolean>(true);
+  const { todos, loading, error, addTodo, updateTodo, deleteTodo, reorderTodos } = useTodos();
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  const loadTodos = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchTodos();
-      // Sort todos by created_at in ascending order (older first)
-      data.sort((a, b) => a.position - b.position);
-      setTodos(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sortTodos = () => {
-    let todoArray = [...todos];
-
-    console.log("Sortinggggg")
-
-    todoArray.sort((a,b) => a.position - b.position);
-    setTodos(todoArray)
-    setUpdated(true);
-  }
-
-  useEffect(() => {
-    loadTodos();
-  }, []);
-
-  useEffect(() => {
-    sortTodos()
-  }, [!updated]);
-
-  const handleAddTodo = async (content: string) => {
-    try {
-      const newTodo = await addTodo(content);
-      setTodos((prev) => [...prev, newTodo]);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleToggleComplete = async (id: number, currentComplete: boolean) => {
-    try {
-      const updatedTodo = await updateTodo({ id, complete: !currentComplete });
-      setTodos(prev => prev.map(todo => todo.id === id ? updatedTodo : todo));
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteTodo(id);
-      setTodos((prev) => prev.filter((todo) => todo.id !== id));
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const sensors = useSensors(
+  const sensor = useSensors(
       useSensor(PointerSensor, {
-        activationConstraint: {
-          distance: 10,
-        },
+          activationConstraint: { distance: 10 },
       })
   );
 
-  const lastHoverIndex = useRef<Number | null>(null);
-
-  const handleDragOver = async (event: DragOverEvent) => {
-
-    const { active, over } = event;
-
-    console.log("Handling drag over");
-
-    if (over && active.id !== over.id) {
-      const startingIndex = todos.findIndex(todo => todo.id.toString() === active.id);
-      let currentIndex = todos.findIndex(todo => todo.id.toString() === over.id);
-
-      if (lastHoverIndex.current === currentIndex) {
-        return;
-      }
-
-      lastHoverIndex.current = currentIndex;
-
-      let updatedTodos = [...todos];
-      let currentItem = updatedTodos[currentIndex];
-
-      if (currentIndex > startingIndex) {
-          currentItem.position--;
-      } else if (currentIndex < startingIndex) {
-          currentItem.position++;
-      }
-
-      setTodos(updatedTodos)
-
-      console.log(todos)
-    }
-  }
+  const handleDragStart = (event: DragStartEvent) => {
+      setActiveId(event.active.id.toString());
+      document.body.classList.add('dragging');
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+      document.body.classList.remove('dragging');
 
-    console.log("Handling drag end");
+      const { active, over } = event;
 
-    setUpdated(false);
+      setActiveId(null);
 
-    const { active, over } = event;
+      if (!over) return;
 
-    if (over && active.id !== over.id) {
-      try {
-        await updateAllTodos(todos);
-      } catch (err: any) {
-        setError(err.message);
+      if (activeId !== over.id) {
+          const oldIndex = todos.findIndex(t => t.id.toString() === active.id.toString());
+          const newIndex = todos.findIndex(t => t.id.toString() === over.id.toString());
+
+          if (oldIndex !== -1 && newIndex !== -1) {
+              await reorderTodos(oldIndex, newIndex);
+          }
       }
-    }
-  };
+  }
+
+  const handleDragCancel = () => {
+      setActiveId(null);
+      document.body.classList.remove('dragging');
+  }
 
   return (
       <Background>
@@ -145,15 +59,22 @@ const App: React.FC = () => {
           {loading ? (
               <p className={styles.loading}>Loading todos...</p>
           ) : (
-              <DndContext sensors={sensors} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+              <DndContext
+                sensors={sensor}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
+                modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+              >
                 <TodoList
                     todos={todos}
-                    onToggleComplete={handleToggleComplete}
-                    onDelete={handleDelete}
+                    onToggleComplete={updateTodo}
+                    onDelete={deleteTodo}
                 />
               </DndContext>
           )}
-          <NewTodoForm onAddTodo={handleAddTodo} />
+          <NewTodoForm onAddTodo={addTodo} />
         </div>
       </Background>
   );

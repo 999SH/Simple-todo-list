@@ -2,44 +2,48 @@
 import React from 'react';
 import styles from './TodoItem.module.css';
 import { Todo } from '../api/todos';
-import {useDraggable, useDroppable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
+import {useSortable} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities"
 
 export interface TodoItemProps {
+    id: string;
     todo: Todo;
     onToggleComplete: (id: number, currentComplete: boolean) => void;
     onDelete: (id: number) => void;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleComplete, onDelete }) => {
+const TodoItem: React.FC<TodoItemProps> = ({
+    id,
+    todo,
+    onToggleComplete,
+    onDelete,
+}) => {
 
     const {
         attributes,
         listeners,
-        setNodeRef: setDraggableNodeRef,
+        setNodeRef,
         transform,
-    } = useDraggable({ id: todo.id.toString() });
-
-    const { setNodeRef: setDroppableNodeRef } = useDroppable({ id: todo.id.toString() });
-
-    const setNodeRef = (node: HTMLElement | null) => {
-        setDraggableNodeRef(node);
-        setDroppableNodeRef(node);
-    }
+        transition,
+        isDragging,
+    } = useSortable({id});
 
     const style = {
-        transform: transform ? CSS.Translate.toString(transform) : undefined,
-        transition: 'transform 100ms ease',
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 1000 : 1,
+        boxShadow: isDragging ? '0 5px 15px rgba(0, 0, 0, 0.15)' : 'none',
     }
 
     return (
         <div
             ref={setNodeRef}
             style={style}
+            className={styles.container}
             {...attributes}
             {...listeners}
-            className={styles.container}
-            onClick={() => onToggleComplete(todo.id, todo.complete)}
+             onClick={() => onToggleComplete(todo.id, todo.complete)}
         >
             <label className={styles.leftArea}>
                 <input
@@ -53,8 +57,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleComplete, onDelete })
                 className={styles.content}
                 style={{ textDecoration: todo.complete ? 'line-through' : 'none' }}
             >
-        {todo.content}
-      </span>
+            {todo.content}
+            </span>
             <button
                 onClick={(e) => {
                     e.stopPropagation(); // Prevent toggling when clicking the delete button
