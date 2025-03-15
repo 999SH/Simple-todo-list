@@ -96,6 +96,7 @@ const useTodos = () => {
 
     return {
         todos,
+        setTodos,
         loading,
         error,
         loadTodos,

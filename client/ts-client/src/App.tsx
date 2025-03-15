@@ -1,24 +1,29 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState} from 'react';
 import TodoList from './components/TodoList';
 import NewTodoForm from './components/NewTodoForm';
 import Background from './components/Background';
 import styles from './App.module.css';
-import useTodos, { Todo } from './hooks/useTodos'
+import useTodos from './hooks/useTodos'
 
 import {
-    closestCenter,
-    DndContext, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors,
+    DndContext,
+    DragEndEvent, DragOverEvent,
+    DragStartEvent,
+    PointerSensor,
+    useSensor,
+    useSensors,
 } from "@dnd-kit/core";
 
 import {restrictToVerticalAxis, restrictToWindowEdges} from "@dnd-kit/modifiers";
+import {arrayMove} from "@dnd-kit/sortable";
 
 const App: React.FC = () => {
-  const { todos, loading, error, addTodo, updateTodo, deleteTodo, reorderTodos } = useTodos();
+  const { todos, setTodos, loading, error, addTodo, updateTodo, deleteTodo, reorderTodos } = useTodos();
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensor = useSensors(
       useSensor(PointerSensor, {
-          activationConstraint: { distance: 10 },
+          activationConstraint: { distance: 3 },
       })
   );
 
@@ -27,9 +32,27 @@ const App: React.FC = () => {
       document.body.classList.add('dragging');
   };
 
+  const handleDragOver = async (event: DragOverEvent) => {
+      const { active, over } = event;
+
+      if (!over) return;
+
+      if (activeId !== over.id) {
+          const oldIndex = todos.findIndex(t => t.id.toString() === active.id.toString());
+          const newIndex = todos.findIndex(t => t.id.toString() === over.id.toString());
+
+          if (oldIndex !== -1 && newIndex !== -1) {
+              const updatedTodos = arrayMove(todos, oldIndex, newIndex).map(
+                  (todo, index) => ({...todo, position: index})
+              );
+              setTodos(updatedTodos)
+          }
+
+      }
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
       document.body.classList.remove('dragging');
-
       const { active, over } = event;
 
       setActiveId(null);
@@ -61,8 +84,8 @@ const App: React.FC = () => {
           ) : (
               <DndContext
                 sensors={sensor}
-                collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
                 onDragCancel={handleDragCancel}
                 modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}

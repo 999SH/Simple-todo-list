@@ -2,8 +2,9 @@
 import React from 'react';
 import styles from './TodoItem.module.css';
 import { Todo } from '../api/todos';
-import {useSortable} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities"
+
 
 export interface TodoItemProps {
     id: string;
@@ -33,8 +34,9 @@ const TodoItem: React.FC<TodoItemProps> = ({
         transition,
         opacity: isDragging ? 0.5 : 1,
         zIndex: isDragging ? 1000 : 1,
-        boxShadow: isDragging ? '0 5px 15px rgba(0, 0, 0, 0.15)' : 'none',
-    }
+        transformOrigin: "50% 50%",
+        willChange: "transform",
+    };
 
     return (
         <div

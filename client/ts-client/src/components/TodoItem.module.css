@@ -2,13 +2,12 @@
 .container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background: #fff;
-    margin: 10px 0;
-    transition: transform 0.2s, box-shadow 0.2s;
+    margin: 12px 0;
     cursor: pointer;
     width: 100%;
     max-width: 800px;
