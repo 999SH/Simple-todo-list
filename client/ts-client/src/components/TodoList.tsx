@@ -29,9 +29,7 @@ const TodoList: React.FC<TodoListProps> = ({
 
     return (
         <div ref={setNodeRef} >
-            <SortableContext items={todoIds}
-                             strategy={verticalListSortingStrategy}
-            >
+            <SortableContext items={todoIds} strategy={verticalListSortingStrategy}>
                 {todos.map((todo) => (
                         <TodoItem
                             key={todo.id}
